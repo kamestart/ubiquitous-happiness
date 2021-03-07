@@ -1,0 +1,17 @@
+<% if (file) { %> 
+        <div id="main-div">
+            <script src="http://localhost:3000/js/keyboardVideoShortcuts.js"></script>
+            <video src="http://localhost:3000/videos/get_one/<%= file.filename %> " autoplay id="video" style="width: 500px; height: 300px;" controls muted></video>
+            <br>
+            <br>
+            <h5><b><%= video.originalName %> </b></h5>  
+            <hr style="width: 530px;">
+            <div class="description" style="width: 530px;">
+                <p style="font-size: 12px; color: grey"><%= video.description %> </p>
+            </div>
+            
+        </div>
+    
+<% } else { %> 
+    No Video With The Following Name
+<% } %>    

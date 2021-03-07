@@ -1,0 +1,20 @@
+<div class="main">
+    <% if (file == null) { %> 
+        <h1 style="text-align: center;">PLEASE UPLOAD A VIDEO <a href="/videos/create_video_pt_2" style="text-decoration: none;">HERE</a> TO COME TO THIS PART!</h1>
+    <% } else { %>
+
+        <form action="/videos/create_video_pt_3" method="POST" id="main_form_create_vid">
+            <script>
+                document.cookie = "ThumbnailFileName=<%= thumbnailFileName %>"
+            </script>
+            <input type="text" name="title_create_vid" id="title_create_vid" placeholder="Title" required>
+            <br>
+            <br>
+            <textarea name="description_create_vid" id="description_create_vid" cols="60" rows="5" placeholder="Description" spellcheck="true" required></textarea>
+            <br>
+            <br>
+            <button type="submit" id="create-btn">Create A new Video!</button>
+        </form>   
+    <% } %> 
+</div>
+

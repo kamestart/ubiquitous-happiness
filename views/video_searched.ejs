@@ -1,0 +1,17 @@
+
+<% if (results !== 0) { %> 
+    <% results.forEach(function (video, index) { %> 
+        <div id="videoElement">
+            <img src="http://localhost:3000/videos/get_one_thumbnail/<%= video.thumbnailFileName %> " id="thumbnail">
+            <a href="/videos/watch_video/<%= video.fileName %> "><h5><b><%= video.originalName %> </b></h5></a>
+            <p style="font-size: 13px; color: grey;"><%= video.description %> </p>
+            <br>
+            <br>
+        </div>
+
+
+    <% }) %>  
+<% } %>
+<% if (results === 0) { %>
+    <h2>We Could Not Find Any Results For Your Search!</h2>
+<% } %> 

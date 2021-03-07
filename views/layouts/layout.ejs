@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="http://localhost:3000/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  
+    <div class="main">
+        <div id="form_search_index">
+            <form method="GET" action="">
+                <div id="searchBox">
+                    <input type="text" name="searched" id="searchInput" placeholder="Search" required oninvalid="this.setCustomValidity('Please Enter Something To Search!')">
+                    <button type="submit" id="search-btn"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <%- body %> 
+</body>
+</html>

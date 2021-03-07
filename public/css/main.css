@@ -1,0 +1,60 @@
+* {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: none;
+}
+
+#searchInput {
+    border: none;
+    width: 430px;
+    outline: none;
+    font-size: 13px;
+    background-color: none;
+}
+
+#searchBox {
+    border: 1px solid black;
+    width: 500px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin: auto;
+    background-color: none;
+}
+
+#main_form_create_vid {
+    text-align: center;
+}
+
+#create-btn {
+    align-self: center;
+    cursor: pointer;
+    background-color: rgb(56, 221, 221);
+    border-radius: 5px;
+    border: none;
+    width: 170px;
+    height: 40px;
+    outline:none
+}
+
+#create-btn:hover {
+    box-shadow: 0px 3px 3px grey;
+}
+
+#search-btn {
+    background-color: none;
+    border: none
+}
+
+#main-div {
+    text-align: center;
+    width: 600px;
+    padding: 10px;
+    margin: auto;
+}
+
+#thumbnail {
+    width: 220px;
+    height: 160px;
+}

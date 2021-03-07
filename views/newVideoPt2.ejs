@@ -1,0 +1,13 @@
+<h3>Now! Please Upload The Thumbnail!</h3>
+<br>
+<br>
+<br>
+<script>
+    document.cookie = "VideofileName=<%= fileName %>"
+</script>
+<form action="/videos/create_video_pt_2" method="POST" enctype="multipart/form-data">
+<input type="file" name="file" id="file">
+<br>
+<br>
+<button type="submit" id="create-btn">Upload The Thumbnail</button>
+</form>
