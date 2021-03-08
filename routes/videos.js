@@ -12,13 +12,13 @@ const mongoose = require('mongoose')
 const videoSchema = require('../models/video')
 
 // Init gridFsBucket
-let gridFsBucket;
+let gridFSBucket;
 
 const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 conn.once('open', () => {
   // Init stream
-  gridFSBucket = new mongoose.mongo.GridFSBucket(conn.db, {bucketName: 'yourBucketName'});
+  gridFSBucket = new mongoose.mongo.GridFSBucket(conn.db, {bucketName: 'uploads'});
 });
 
 // Create storage engine
