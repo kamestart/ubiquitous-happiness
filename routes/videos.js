@@ -118,8 +118,8 @@ router.get('/watch_video/:filename',  async (req, res) => {
     let videoInfo =  await videoSchema.findOne({ fileName: req.params.filename })
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       if (file || file.length !== 0) {
-      
-        res.render('view_video', { file: file, video: videoInfo })
+        production1 = process.env.NODE_ENV
+        res.render('view_video', { file: file, video: videoInfo, production: production1 })
       } else {
         res.send("No Such Video Exists")
       }
