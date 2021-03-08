@@ -8,6 +8,10 @@ const postSchema = new mongoose.Schema({
     content: {
         type: String,
         required: true
+    },
+    authour: {
+        ref: 'user',
+        required: true
     }
 })
 
