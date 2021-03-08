@@ -4,7 +4,7 @@
             <% if(production != "production"){ %> 
                 <video src="http://localhost:3000/videos/get_one/<%= file.filename %> " autoplay id="video" style="width: 500px; height: 300px;" controls></video>
             <% } else { %>
-                <video src="http://localhost:3000/videos/get_one/<%= file.filename %> " autoplay id="video" style="width: 500px; height: 300px;" controls></video> 
+                <video src="https://anskep.herokuapp.com/videos/get_one/<%= file.filename %> " autoplay id="video" style="width: 500px; height: 300px;" controls></video> 
             <% } %>        
             <br>
             <br>
