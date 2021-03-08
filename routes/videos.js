@@ -11,15 +11,14 @@ const methodOveride = require('method-override')
 const mongoose = require('mongoose')
 const videoSchema = require('../models/video')
 
-// Init gfs
-let gfs;
+// Init gridFsBucket
+let gridFsBucket;
 
 const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 conn.once('open', () => {
   // Init stream
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('uploads');
+  gridFSBucket = new mongoose.mongo.GridFSBucket(conn.db, {bucketName: 'yourBucketName'});
 });
 
 // Create storage engine
@@ -63,7 +62,7 @@ router.post('/create_video', upload.single('file'), async (req, res) => {
 // @desc Display All the files!
 
 router.get('/', (req, res) => {
-    gfs.files.find().toArray((err, files) => {
+    gridFsBucket.files.find().toArray((err, files) => {
         // check if files are there
         if(!files || files.length === 0) {
             res.render('videos', { message: "No Videos Uploaded Yet!" })
@@ -116,7 +115,7 @@ router.get('/video_creation_confirmation', (req, res) => {
 router.get('/watch_video/:filename',  async (req, res) => {
   try {
     let videoInfo =  await videoSchema.findOne({ fileName: req.params.filename })
-    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+    gridFsBucket.files.findOne({ filename: req.params.filename }, (err, file) => {
       if (file || file.length !== 0) {
         production1 = process.env.NODE_ENV
         res.render('view_video', { file: file, video: videoInfo, production: production1 })
@@ -133,7 +132,7 @@ router.get('/watch_video/:filename',  async (req, res) => {
 // @route GET /image/:filename
 // @desc Display Image
 router.get('/get_one/:filename', (req, res) => {
-  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+  gridFsBucket.files.findOne({ filename: req.params.filename }, (err, file) => {
     // Check if file
     if (!file || file.length === 0) {
       return res.status(404).json({
@@ -144,7 +143,7 @@ router.get('/get_one/:filename', (req, res) => {
     // Check if image
     if (file.contentType === 'image/jpg' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
       // Read output to browser
-      const readstream = gfs.createReadStream(file.filename);
+      const readstream = gridFsBucket.createReadStream(file.filename);
       res.set('Content-Type', file.contentType)
       readstream.pipe(res);
     } else {
@@ -157,7 +156,7 @@ router.get('/get_one/:filename', (req, res) => {
 
 
 router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
-  gfs.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
+  gridFsBucket.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
     // Check if file
     if (!file || file.length === 0) {
       return res.status(404).json({
@@ -168,7 +167,7 @@ router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
     // Check if image
     if (file.contentType === 'image/jpg' || file.contentType === 'image/jpeg' || file.contentType === 'image/png' || file.contentType === "image/tiff") {
       // Read output to browser
-      const readstream = gfs.createReadStream(file.filename);
+      const readstream = gridFsBucket.createReadStream(file.filename);
       res.set('Content-Type', file.contentType)
       readstream.pipe(res);
     } else {
