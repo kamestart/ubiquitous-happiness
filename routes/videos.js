@@ -10,7 +10,7 @@ const Grid = require('gridfs-stream')
 const methodOveride = require('method-override')
 const mongoose = require('mongoose')
 const videoSchema = require('../models/video')
-
+var currentId  = 1
 // Init gridFsBucket
 let gridFSBucket;
 
@@ -94,11 +94,13 @@ router.post('/create_video_pt_3', async (req, res) => {
       description: req.body.description_create_vid,
       fileName: req.cookies.VideofileName,
       originalName: req.body.title_create_vid,
-      thumbnailFileName: req.cookies.ThumbnailFileName
+      thumbnailFileName: req.cookies.ThumbnailFileName,
+      id: currentId
   })
   console.log(req.cookies.ThumbnailFileName)
   console.log(req.cookies.VideofileName)
   await newvideo.save()
+  currentId++
   res.redirect('/')
   } catch (err) {
     
