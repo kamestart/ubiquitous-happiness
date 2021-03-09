@@ -134,7 +134,7 @@ router.get('/watch_video/:filename',  async (req, res) => {
 // @route GET /image/:filename
 // @desc Display Image
 router.get('/get_one/:filename', (req, res) => {
-  gridFsBucket.files.findOne({ filename: req.params.filename }, (err, file) => {
+  gridFSBucket.files.findOne({ filename: req.params.filename }, (err, file) => {
     // Check if file
     if (!file || file.length === 0) {
       return res.status(404).json({
@@ -158,7 +158,7 @@ router.get('/get_one/:filename', (req, res) => {
 
 
 router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
-  gridFsBucket.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
+  gridFSBucket.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
     // Check if file
     if (!file || file.length === 0) {
       return res.status(404).json({
@@ -169,7 +169,7 @@ router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
     // Check if image
     if (file.contentType === 'image/jpg' || file.contentType === 'image/jpeg' || file.contentType === 'image/png' || file.contentType === "image/tiff") {
       // Read output to browser
-      const readstream = gridFsBucket.createReadStream(file.filename);
+      const readstream = gridFSBucket.createReadStream(file.filename);
       res.set('Content-Type', file.contentType)
       readstream.pipe(res);
     } else {

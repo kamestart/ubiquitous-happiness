@@ -9,8 +9,13 @@ router.get('/', async (req, res) => {
     } else {
         var searchQuery = req.query.searched.toUpperCase()
         if (searchQuery != "" || " ") {
+
             searchResults = await videos.find({ title:{$regex: '.*' + searchQuery + '.*'}}, 'title description fileName originalName thumbnailFileName')
-            res.render('video_searched.ejs', { results: searchResults })
+            if (searchResults != []) {
+                res.render('video_searched.ejs', { results: searchResults, production: process.env.NODE_ENV })
+            } else {
+                
+            }
         } else {
             res.render('index')
         }
