@@ -38,6 +38,11 @@ const videoSchema = new schema({
     id: {
         type: Number,
         required: true
+    },
+    creator: {
+        type: String,
+        ref: 'user',
+        required: false
     }
 })
 

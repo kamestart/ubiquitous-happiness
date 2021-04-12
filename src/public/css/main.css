@@ -1,8 +1,18 @@
 * {
-    font-family: Arial, Helvetica, sans-serif;
     padding: none;
 }
-
+:root {
+	--dark-color-a: #667aff;
+	--dark-color-b: #7386ff;
+	--light-color: #e6e9ff;
+	--success-color: #5cb85c;
+	--error-color: #d9534f;
+}
+body {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	margin: 20px;
+}
 #searchInput {
     border: none;
     width: 430px;
@@ -43,7 +53,7 @@
 }
 
 #search-btn {
-    background-color: none;
+    background-color: white;
     border: none
 }
 
@@ -63,3 +73,9 @@
   text-align: center;
   letter-spacing: 1px;
 }
+
+.searchIcon {
+    width: 15px;
+    height: 15px;
+}
+
