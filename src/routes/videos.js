@@ -10,15 +10,16 @@ const Grid = require('gridfs-stream')
 const methodOveride = require('method-override')
 const mongoose = require('mongoose')
 const videoSchema = require('../models/video')
-var currentId  = 1
-// Init gridFsBucket
-let gridFSBucket;
+const id = require('../models/id')
+// Init gfs
+let gfs;
 
 const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 conn.once('open', () => {
   // Init stream
-  gridFSBucket = new mongoose.mongo.GridFSBucket(conn.db, {bucketName: 'uploads'});
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
 });
 
 // Create storage engine
@@ -53,22 +54,23 @@ router.post('/create_video', upload.single('file'), async (req, res) => {
         res.render('newVideoPt2', { video: req.file, fileName: req.file.filename})
     } catch (err) {
         throw err;
-        
+
     }
-    
+
 });
 
 // @route GET all files at /
 // @desc Display All the files!
 
 router.get('/', (req, res) => {
-    gridFsBucket.files.find().toArray((err, files) => {
+    gfs.files.find().toArray((err, files) => {
         // check if files are there
         if(!files || files.length === 0) {
             res.render('videos', { message: "No Videos Uploaded Yet!" })
-        } 
-        res.json(files) 
+        }
+        res.json(files)
     })
+
 })
 
 
@@ -77,33 +79,45 @@ router.get('/', (req, res) => {
 
 router.post('/create_video_pt_2', upload.single('file'), async (req, res) => {
     try {
-      
+
       console.log(req.file.filename)
       res.render('create_video_pt_3', { file: req.file, thumbnailFileName: req.file.filename })
     } catch(err) {
         throw err;
-        
+
     }
 
 })
 
 router.post('/create_video_pt_3', async (req, res) => {
   try {
+    const videoId = await id.findOne({ forWhat: "videos" })
+    console.log(videoId)
+    const currentID = videoId.current_id
+    console.log(currentID);
     const newvideo = new videoSchema({
       title: req.body.title_create_vid.toUpperCase(),
       description: req.body.description_create_vid,
       fileName: req.cookies.VideofileName,
       originalName: req.body.title_create_vid,
       thumbnailFileName: req.cookies.ThumbnailFileName,
-      id: currentId
+      id: currentID
   })
-  console.log(req.cookies.ThumbnailFileName)
-  console.log(req.cookies.VideofileName)
   await newvideo.save()
-  currentId++
+  let newId = currentID + 1
+  console.log(newId)
+  var filter = { forWhat: "videos" }
+  var update = { current_id: currentID + 1 }
+  id.findOneAndUpdate(filter, update, { new: true },(err, doc) => {
+    if (err) {
+      console.log("Something went wrong while updating: " + err)
+    } else {
+      console.log(doc)
+    }
+  })
   res.redirect('/')
   } catch (err) {
-    
+
   }
 })
 // @route /video_creation_confirmation
@@ -117,7 +131,7 @@ router.get('/video_creation_confirmation', (req, res) => {
 router.get('/watch_video/:filename',  async (req, res) => {
   try {
     let videoInfo =  await videoSchema.findOne({ fileName: req.params.filename })
-    gridFsBucket.files.findOne({ filename: req.params.filename }, (err, file) => {
+    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       if (file || file.length !== 0) {
         production1 = process.env.NODE_ENV
         res.render('view_video', { file: file, video: videoInfo, production: production1 })
@@ -134,7 +148,7 @@ router.get('/watch_video/:filename',  async (req, res) => {
 // @route GET /image/:filename
 // @desc Display Image
 router.get('/get_one/:filename', (req, res) => {
-  gridFSBucket.files.findOne({ filename: req.params.filename }, (err, file) => {
+  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
     // Check if file
     if (!file || file.length === 0) {
       return res.status(404).json({
@@ -143,9 +157,9 @@ router.get('/get_one/:filename', (req, res) => {
     }
 
     // Check if image
-    if (file.contentType === 'image/jpg' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
+    if (file.contentType === 'video/x-matroska' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
       // Read output to browser
-      const readstream = gridFsBucket.createReadStream(file.filename);
+      const readstream = gfs.createReadStream(file.filename);
       res.set('Content-Type', file.contentType)
       readstream.pipe(res);
     } else {
@@ -158,7 +172,7 @@ router.get('/get_one/:filename', (req, res) => {
 
 
 router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
-  gridFSBucket.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
+  gfs.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
     // Check if file
     if (!file || file.length === 0) {
       return res.status(404).json({
@@ -169,7 +183,7 @@ router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
     // Check if image
     if (file.contentType === 'image/jpg' || file.contentType === 'image/jpeg' || file.contentType === 'image/png' || file.contentType === "image/tiff") {
       // Read output to browser
-      const readstream = gridFSBucket.createReadStream(file.filename);
+      const readstream = gfs.createReadStream(file.filename);
       res.set('Content-Type', file.contentType)
       readstream.pipe(res);
     } else {
@@ -182,4 +196,3 @@ router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
 
 
 module.exports = router
-

@@ -1,0 +1,33 @@
+<h3>Welcome Back, Login Please!</h3>
+
+<% if(production != "production") { %>
+  <form action="index.html" method="post">
+    <input type="text" name="username" required="true" placeholder="Username">
+    <br>
+    <br>
+    <input type="password" name="password" required="true" placeholder="Password">
+    <br>
+    <br>
+    <br>
+    <button type="submit">Login</button>
+  </form>
+  <br>
+  <br>
+  <p>Don't Have An Account? Sign Up
+    <a href="http://localhost:3000/users/signUp" style="text-decoration: none;">Here</a>
+  !</p>
+<% } else { %>
+  <form action="index.html" method="post">
+      <input type="text" name="username" required="true" placeholder="Username">
+      <br>
+      <br>
+      <input type="password" name="password" required="true" placeholder="Password">
+      <br>
+      <br>
+      <br>
+      <button type="submit">Login</button>
+  </form>
+  <br>
+  <br>
+  <p>Don't Have An Account? Sign Up <a href="https://anskep.herokuapp.com/user/signUp" style="text-decoration: none;">Here</a>!</p>
+<% } %>

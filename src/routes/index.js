@@ -5,6 +5,7 @@ const videos = require('../models/video')
 
 router.get('/', async (req, res) => {
     if (req.query.searched == null) {
+
         res.render('index')
     } else {
         var searchQuery = req.query.searched.toUpperCase()
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
             if (searchResults != []) {
                 res.render('video_searched.ejs', { results: searchResults, production: process.env.NODE_ENV })
             } else {
-                
+                res.send('No File!')
             }
         } else {
             res.render('index')
