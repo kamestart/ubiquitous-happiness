@@ -2,7 +2,7 @@
 
 <% if(production != "production") { %>
 
-  <form action="http://localhost:3000/users/signUp" method="POST">
+  <form action="http://localhost:3000/register" method="POST">
 
     <input type="email" name="email" placeholder="Email">
     <br>
@@ -19,9 +19,9 @@
   </form>
   <br>
   <br>
-  <p>Already Have An Account? Login<a href="http://localhost:3000/users/login" style="text-decoration: none;"> Here</a>!</p>
+  <p>Already Have An Account? Login<a href="http://localhost:3000/login" style="text-decoration: none;"> Here</a>!</p>
 <% } else { %>
-  <form action="https://anskep.herokuapp.com/users/signUp" method="POST">
+  <form action="https://anskep.herokuapp.com/register" method="POST">
       <input type="text" name="username" required="true" placeholder="Username">
       <br>
       <br>
@@ -33,5 +33,5 @@
   </form>
   <br>
   <br>
-  <p>Already Have An Account? Login<a href="https://anskep.herokuapp.com/users/login" style="text-decoration: none;"> Here</a>!</p>
+  <p>Already Have An Account? Login<a href="https://anskep.herokuapp.com/login" style="text-decoration: none;"> Here</a>!</p>
 <% } %>
