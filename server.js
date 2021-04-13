@@ -1,4 +1,4 @@
-process.env.NODE_ENV != "production" ? require('dotenv').config() : console.log("In Prod Mode!")
+process.env.NODE_ENV != "production" ? require('dotenv').config() : console.log(":)")
 
 // modules
 const express = require('express')
@@ -77,5 +77,4 @@ app.get('/chat', (re, res) => {
     res.render('chat')
 })
 
-
-server.listen(process.env.PORT || 3000 , () => { console.log(`Listening on port ${PORT}`) })
+server.listen(process.env.PORT || 3000, () => { console.log(`Listening on port ${process.env.PORT || 3000}`) })
