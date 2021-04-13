@@ -11,7 +11,8 @@ const cookieParser = require('cookie-parser')
 const bcrypt = require('bcrypt')
 let productiono = process.env.NODE_ENV
 const http = require('http')
-const socketIo = require('socketio')
+const socketIo = require('socket.io')
+const path = require('path')
 
 // models
 const id = require('./src/models/id')
@@ -19,6 +20,7 @@ const user = require('./src/models/user')
 
 // start socketio
 const server = http.createServer(app)
+const io = socketIo(server)
 
 // routers
 const indexRouter = require('./src/routes/index')
@@ -44,6 +46,15 @@ app.use('/', indexRouter)
 mongoose.connect(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
 
 
+
+// run io when client connects!
+
+io.on('connection', socket => {
+    console.log("New Client Connected")
+})
+
+
+
 app.get('/ids/create_id', async (req, res) => {
     try {
         const whatFor = req.query.whatFor
@@ -65,6 +76,10 @@ app.get('/ids/create_id', async (req, res) => {
 app.get('/chat', (re, res) => {
     res.render('chat')
 })
+
+
+
+
 PORT = 3000 || process.env.PORT
 
 server.listen(PORT, () => { console.log(`Listening on port ${PORT}`) })
