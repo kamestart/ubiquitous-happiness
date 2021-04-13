@@ -78,8 +78,4 @@ app.get('/chat', (re, res) => {
 })
 
 
-
-
-PORT = 3000 || process.env.PORT
-
-server.listen(PORT, () => { console.log(`Listening on port ${PORT}`) })
+server.listen(process.env.PORT || 3000 , () => { console.log(`Listening on port ${PORT}`) })
