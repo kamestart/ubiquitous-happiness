@@ -1,27 +1,54 @@
-// @funtion findOneModel
-// @desc A function which finds a model and takes in a model, it's parameter and its value
-function findOneModel(model, parameterq, value) {
-    const modelToReturn = model.findOne({ parameterq : value })
-    return modelToReturn
-}
+const bcrypt = require('bcrypt')
+const chalk = require('chalk')
+let productiono = process.env.NODE_ENV
+const router = require('express').Router()
+const initializePassport = require('../startegies/passport-strategy')
+const mongoose = require('mongoose')
+const user = require('../models/user')
+const passport  = require('passport')
+const session = require('express-session')
+const flash  = require('express-flash')
 
-app.get('/register', (req, res) => {
+// initialize Passport
+
+initializePassport(
+    passport,
+    usernamea => user.findOne({ username: usernamea }).exec(),
+    id => users.findOne({ ObjectId: id }).exec()
+)
+
+
+
+router.use(flash())
+router.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}))
+router.use(passport.initialize())
+router.use(passport.session())
+
+
+
+
+router.get('/register', async (req, res) => {
     console.log("Signup process initialized")
-    res.render('signUp', { production: productiono })
+    await res.render('signUp', { production: productiono })
 })
 
-    // @route users/Signup
-    // @desc signup logic
+// @route users/Signup
+// @desc signup logic
 
-app.post('/register', async (req, res) => {
+router.post('/register', async (req, res) => {
     try {
         const password = req.body.password
         const hashedPassword = await bcrypt.hash(password, 15)
         const newUser = new user({
-        username: req.body.username,
-        password: hashedPassword,
-        email: req.body.email
-   })
+            username: req.body.username,
+            password: hashedPassword,
+            email: req.body.email,
+            id: Date.now().toString()
+        })
         await newUser.save(function (err) {
             if (err) {
                console.log(`error occured at newuser.save() :  /n /n`)
@@ -33,23 +60,49 @@ app.post('/register', async (req, res) => {
         res.redirect(200, '/login')
     } catch (err) {
         res.status(500).send("We Have Expirienced a Internal Server Error! Please Wait! Our Team Will Be On This Issue Immediately!")
-        console.log("Hey There! We've Got An Error: " + err)
+        console.log(chalk.red("Hey There! We've Got An Error: " + err))
         throw err;
     }
 })
 
 
 
-app.get('/login', (req, res) => {
+router.get('/login', (req, res) => {
     res.render("login", { production: productiono })
 })
 
-app.post('/login', (req, res) => {
+router.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true
+}))
 
-})
 
-
-app.get('/oneUser/:username', async (req, res) => {
-    const userToSend = findOneModel(user, "username", req.params.username)
+router.get('/oneUser/:username', async (req, res) => {
+    const userToSend = user.findOne({ username: req.params.username })
     res.render('oneUser', { user: userToSend })
 })
+
+
+router.delete('/logout', (req, res) => {
+    req.logOut()
+    res.redirect('/login')
+})
+
+function checkAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+      return next()
+    }
+  
+    res.redirect('/login')
+  }
+  
+  function checkNotAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+      return res.redirect('/')
+    }
+    next()
+  }
+
+module.exports = router
+

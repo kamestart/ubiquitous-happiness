@@ -1,11 +1,6 @@
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
-    hasChannel: {
-        type: Boolean,
-        required: true,
-        default: false,
-    },
     username: {
         type: String,
         required: true
@@ -26,6 +21,10 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0
+    },
+    id: {
+        type: String,
+        required: true
     }    
 })
 

@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calonc</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" 
-    integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" 
-    crossorigin="anonymous"></script>
+    <title>Calcon</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
     integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
@@ -23,19 +19,41 @@
     <link rel="stylesheet" type="text/css" href="https://anskep.herokuapp.com/css/main.css">
     <link rel="stylesheet" type="text/css" href="http://localhost:3000/css/chat.css">
     <link rel="stylesheet" type="text/css" href="https://anskep.herokuapp.com/css/chat.css">
+    <link rel="stylesheet" type="text/css" href="http://localhost:3000/css/navbar.css">
+    <link rel="stylesheet" type="text/css" href="https://anskep.herokuapp.com/css/navbar.css">
 </head>
 <body>
-  
-    <div class="main">
-        <div id="form_search_index">
-            <form method="GET" action="">
-                <div id="searchBox">
-                    <input type="text" name="searched" id="searchInput" placeholder="Search" required oninvalid="this.setCustomValidity('Please Enter Something To Search!')">
-                      <button type="submit" id="search-btn"><img src="http://localhost:3000/images/search.png" class="searchIcon" alt=""></img></button>
-                </div>
-            </form>
-        </div>
+
+<!-- Navbar -->
+
+<nav>
+    <div id="header">
+        <h4>Calnoc</h4>
     </div>
+    <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Register</a></li>
+        <li><a href="#">Login</a></li>
+        <li><a href="#">Videos</a></li>
+        <li><a href="#">About</a></li>
+    </ul>
+</nav>
+
+<br>
+<br>
+ 
+<!--Search Bar-->
+
+<div class="search_div">
+    <div id="form_search_index">
+        <form method="GET" action="">
+            <div id="searchBox">
+                <input type="text" name="searched" id="searchInput" placeholder="Search" required oninvalid="this.setCustomValidity('Please Enter Something To Search!')">
+                <button type="submit" id="search-btn"><img src="http://localhost:3000/images/search.png" class="searchIcon" alt=""></img></button>
+            </div>
+        </form>
+    </div>
+</div>
     <%- body %> 
 </body>
 </html>

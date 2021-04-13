@@ -8,12 +8,10 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const methodOveride = require('method-override')
 const cookieParser = require('cookie-parser')
-const bcrypt = require('bcrypt')
-let productiono = process.env.NODE_ENV
 const http = require('http')
 const socketIo = require('socket.io')
 const path = require('path')
-
+const passport = require('passport')
 // models
 const id = require('./src/models/id')
 const user = require('./src/models/user')
@@ -25,6 +23,7 @@ const io = socketIo(server)
 // routers
 const indexRouter = require('./src/routes/index')
 const videoRouter = require('./src/routes/videos')
+const userSystemsRouter = require('./src/routes/user')
 
 // set the settings and configure routers, views, etc.
 app.disable('x-powered-by')
@@ -39,6 +38,7 @@ app.use(methodOveride('_method'))
 app.use(cookieParser())
 app.use('/videos', videoRouter)
 app.use('/', indexRouter)
+app.use('/userSystems', userSystemsRouter)
 
 
 // connect to mongoose
