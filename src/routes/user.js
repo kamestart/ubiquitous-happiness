@@ -57,7 +57,7 @@ router.post('/register', async (req, res) => {
                 console.log("New User Sucessfully Created.")
             }
         })
-        res.redirect(200, '/login')
+        res.redirect('/userSystems/login')
     } catch (err) {
         res.status(500).send("We Have Expirienced a Internal Server Error! Please Wait! Our Team Will Be On This Issue Immediately!")
         console.log(chalk.red("Hey There! We've Got An Error: " + err))
@@ -73,7 +73,7 @@ router.get('/login', (req, res) => {
 
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/',
-    failureRedirect: '/login',
+    failureRedirect: 'userSystems/login',
     failureFlash: true
 }))
 

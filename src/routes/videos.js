@@ -11,6 +11,10 @@ const methodOveride = require('method-override')
 const mongoose = require('mongoose')
 const videoSchema = require('../models/video')
 const id = require('../models/id')
+let productiono = process.env.NODE_ENV
+
+
+
 // Init gfs
 let gfs;
 
@@ -46,12 +50,12 @@ const upload = multer({ storage });
 
 
 router.get('/create_video', (req, res) => {
-    res.render('newVideo')
+    res.render('newVideo', { production: productiono })
 })
 
 router.post('/create_video', upload.single('file'), async (req, res) => {
     try {
-        res.render('newVideoPt2', { video: req.file, fileName: req.file.filename})
+        res.render('newVideoPt2', { video: req.file, fileName: req.file.filename, production: productiono})
     } catch (err) {
         throw err;
 
@@ -66,7 +70,7 @@ router.get('/', (req, res) => {
     gfs.files.find().toArray((err, files) => {
         // check if files are there
         if(!files || files.length === 0) {
-            res.render('videos', { message: "No Videos Uploaded Yet!" })
+            res.render('videos', { message: "No Videos Uploaded Yet!", production: productiono })
         }
         res.json(files)
     })
@@ -81,7 +85,7 @@ router.post('/create_video_pt_2', upload.single('file'), async (req, res) => {
     try {
 
       console.log(req.file.filename)
-      res.render('create_video_pt_3', { file: req.file, thumbnailFileName: req.file.filename })
+      res.render('create_video_pt_3', { file: req.file, thumbnailFileName: req.file.filename, production: productiono })
     } catch(err) {
         throw err;
 
@@ -133,8 +137,7 @@ router.get('/watch_video/:filename',  async (req, res) => {
     let videoInfo =  await videoSchema.findOne({ fileName: req.params.filename })
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       if (file || file.length !== 0) {
-        production1 = process.env.NODE_ENV
-        res.render('view_video', { file: file, video: videoInfo, production: production1 })
+        res.render('view_video', { file: file, video: videoInfo, production: productiono })
       } else {
         res.send("No Such Video Exists")
       }

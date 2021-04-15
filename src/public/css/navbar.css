@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    justify-content: center;
+    min-height: 8vh;
+    background-color: #5d4954;
+}
+
+#header {
+    color: rgb(226, 226, 228);
+    text-transform: uppercase;
+    letter-spacing: 5px;
+}
+
+.navbar-list {
+    display: flex;
+
+    justify-content: space-around;
+    width: 70%;
+}

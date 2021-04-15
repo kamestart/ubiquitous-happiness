@@ -12,6 +12,7 @@ const http = require('http')
 const socketIo = require('socket.io')
 const path = require('path')
 const passport = require('passport')
+
 // models
 const id = require('./src/models/id')
 const user = require('./src/models/user')
@@ -39,7 +40,7 @@ app.use(cookieParser())
 app.use('/videos', videoRouter)
 app.use('/', indexRouter)
 app.use('/userSystems', userSystemsRouter)
-
+app.locals.productiono = process.env.NODE_ENV
 
 // connect to mongoose
 
@@ -74,7 +75,12 @@ app.get('/ids/create_id', async (req, res) => {
 
 
 app.get('/chat', (re, res) => {
-    res.render('chat')
+    res.render('chat', { production : app.locals.productiono })
 })
+
+app.get('/about', (req, res) => {
+    res.render('about', { production : app.locals.productiono })
+})
+
 
 server.listen(process.env.PORT || 3000, () => { console.log(`Listening on port ${process.env.PORT || 3000}`) })
