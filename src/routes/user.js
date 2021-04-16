@@ -14,7 +14,7 @@ const flash  = require('express-flash')
 initializePassport(
     passport,
     usernamea => user.findOne({ username: usernamea }).exec(),
-    id => users.findOne({ ObjectId: id }).exec()
+    id => user.findOne({ ObjectId: id }).exec()
 )
 
 
