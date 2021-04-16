@@ -1,3 +1,4 @@
+
 const bcrypt = require('bcrypt')
 const chalk = require('chalk')
 let productiono = process.env.NODE_ENV
@@ -8,10 +9,7 @@ const user = require('../models/user')
 const passport  = require('passport')
 const session = require('express-session')
 const flash  = require('express-flash')
-const RedisStore = require('connect-redis')(session)
-const redis = require('redis')
-let redisClient = redis.createClient()
-
+const memoryStore = require('memorystore')(session)
 // initialize Passport
 
 initializePassport(
@@ -23,12 +21,14 @@ initializePassport(
 
 
 router.use(flash())
-router.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  store: new RedisStore({ client: redisClient }),
-  saveUninitialized: false
-}))
+router.use(
+    session({
+        store: new memoryStore(),
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false
+    })
+)
 router.use(passport.initialize())
 router.use(passport.session())
 
