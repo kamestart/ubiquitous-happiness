@@ -12,7 +12,8 @@ const http = require('http')
 const socketIo = require('socket.io')
 const path = require('path')
 const passport = require('passport')
-
+const session = require('express-session')
+const memoryStore = require('memorystore')(session)
 // models
 const id = require('./src/models/id')
 const user = require('./src/models/user')
@@ -41,6 +42,19 @@ app.use('/videos', videoRouter)
 app.use('/', indexRouter)
 app.use('/userSystems', userSystemsRouter)
 app.locals.productiono = process.env.NODE_ENV
+app.use(
+    session({
+        store: new memoryStore(),
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        secure: false
+    })
+)
+app.use(passport.initialize())
+app.use(passport.session())
+
+
 
 // connect to mongoose
 

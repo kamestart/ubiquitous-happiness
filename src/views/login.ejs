@@ -1,6 +1,12 @@
 <h3>Welcome Back, Login Please!</h3>
 
 <% if(production != "production") { %>
+
+  <% if (messages.error) { %>
+    <%= messages.error %>
+  <% } %>
+
+
   <form action="http://localhost:3000/userSystems/login" method="post">
     <input type="text" name="username" required="true" placeholder="Username">
     <br>
@@ -19,6 +25,13 @@
     !
   </p>
 <% } else { %>
+
+  <% if (messages.error) { %>
+    <%= messages.error %>
+  <% } %>
+
+
+
   <form action="https://anskep.herokuapp.com/userSystems/login" method="post">
       <input type="text" name="username" required="true" placeholder="Username">
       <br>

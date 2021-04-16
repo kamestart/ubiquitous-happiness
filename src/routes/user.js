@@ -10,23 +10,27 @@ const passport  = require('passport')
 const session = require('express-session')
 const flash  = require('express-flash')
 const memoryStore = require('memorystore')(session)
+const cookieParser = require('cookie-parser')
+
+
 // initialize Passport
 
 initializePassport(
     passport,
     usernamea => user.findOne({ username: usernamea }).exec(),
-    id => user.findOne({ ObjectId: id }).exec()
+    ida => user.findOne({ id: ida })
 )
 
 
-
+router.use(cookieParser(process.env.SESSION_SECRET));
 router.use(flash())
 router.use(
     session({
         store: new memoryStore(),
         secret: process.env.SESSION_SECRET,
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        secure: false
     })
 )
 router.use(passport.initialize())
@@ -76,7 +80,7 @@ router.get('/login', (req, res) => {
 
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/',
-    failureRedirect: 'userSystems/login',
+    failureRedirect: '/userSystems/login',
     failureFlash: true
 }))
 

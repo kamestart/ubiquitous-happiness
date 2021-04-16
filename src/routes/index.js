@@ -4,13 +4,28 @@ const mongoose = require('mongoose')
 const router = express.Router()
 const videos = require('../models/video')
 const productiono = process.env.NODE_ENV
+const passport  = require('passport')
+const session = require('express-session')
+const memoryStore = require('memorystore')(session)
 
-
-
+router.use(
+    session({
+        store: new memoryStore(),
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        secure: false
+    })
+)
+router.use(passport.initialize())
+router.use(passport.session())
 
 router.get('/', async (req, res) => {
     if (req.query.searched == null) {
-        console.log(req.user.username)
+        console.log(req.isAuthenticated())
+        if (req.isAuthenticated()) {
+            console.log(req.user)
+        }
         res.render('index', { production: productiono, user: req.user })
     } else {
         var searchQuery = req.query.searched.toUpperCase()
