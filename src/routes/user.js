@@ -9,6 +9,8 @@ const passport  = require('passport')
 const session = require('express-session')
 const flash  = require('express-flash')
 const RedisStore = require('connect-redis')(session)
+const redis = require('redis')
+let redisClient = redis.createClient()
 
 // initialize Passport
 
@@ -24,7 +26,7 @@ router.use(flash())
 router.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  store: new RedisStore(),
+  store: new RedisStore({ client: redisClient }),
   saveUninitialized: false
 }))
 router.use(passport.initialize())
