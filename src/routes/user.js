@@ -8,6 +8,7 @@ const user = require('../models/user')
 const passport  = require('passport')
 const session = require('express-session')
 const flash  = require('express-flash')
+const RedisStore = require('connect-redis')(session)
 
 // initialize Passport
 
@@ -23,6 +24,7 @@ router.use(flash())
 router.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
+  store: new RedisStore(),
   saveUninitialized: false
 }))
 router.use(passport.initialize())
