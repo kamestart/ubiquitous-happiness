@@ -10,8 +10,8 @@ const productiono = process.env.NODE_ENV
 
 router.get('/', async (req, res) => {
     if (req.query.searched == null) {
-
-        res.render('index', { production: productiono })
+        console.log(req.user.username)
+        res.render('index', { production: productiono, user: req.user })
     } else {
         var searchQuery = req.query.searched.toUpperCase()
         if (searchQuery != "" || " ") {
