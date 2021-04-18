@@ -14,7 +14,7 @@ router.use(
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
-        secure: false
+        secure: process.env.isHttps
     })
 )
 router.use(passport.initialize())

@@ -14,6 +14,8 @@ const path = require('path')
 const passport = require('passport')
 const session = require('express-session')
 const memoryStore = require('memorystore')(session)
+const formatMessage = require('./src/utils/messages')
+
 // models
 const id = require('./src/models/id')
 const user = require('./src/models/user')
@@ -48,7 +50,7 @@ app.use(
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
-        secure: false
+        secure: process.env.isHttps
     })
 )
 app.use(passport.initialize())
@@ -66,7 +68,15 @@ mongoose.connect(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true
 
 io.on('connection', socket => {
     console.log("New Client Connected")
+
+    socket.on('ChatMessage', (msg) => {
+        console.log(msg)
+        io.emit('new_msg', formatMessage("USER", msg))
+    })
+
 })
+
+
 
 
 
