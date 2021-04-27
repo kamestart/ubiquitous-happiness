@@ -51,11 +51,10 @@ router.get('/register', async (req, res) => {
 
 router.post('/register',  async (req, res) => {
     console.log(req.body.captcha)
-    console.log("fef")
     const hashedPassword = await bcrypt.hash(req.body.password, 15)
     try {
         if (req.body.captcha === undefined || req.body.captcha === "" ||req.body.captcha === null ) {
-            res.json({ "success": false, "msg": "Please select captcha" })
+            return res.json({ "RedirectUrl" : "/userSystems/register", "success": false, "msg": "Please select captcha" })
         } 
 
         // secret key
@@ -85,12 +84,11 @@ router.post('/register',  async (req, res) => {
             }
         })
         console.log("redirect now")
-        res.redirect('/userSystems/login')
+        res.json({ "RedirectUrl" : "/userSystems/login", "msg": "new user created successfully!"})
         
     } catch (err) {
-        const msg = "Internal Server Error! Please Wait! Our Team Will Be On This Issue Now!"
-        res.status(500).send()
-        console.log(chalk.red("Hey There! We've Got An Error: " + err))
+        res.status(500).send("err. err. err. err. pls wait.")
+        console.log(chalk.red("Error: There is a " + err))
         throw err;
     }
 })
@@ -109,8 +107,8 @@ router.post('/login', passport.authenticate('local', {
 
 
 router.get('/oneUser/:username', async (req, res) => {
-    const userToSend = user.findOne({ username: req.params.username })
-    res.render('oneUser', { user: userToSend })
+    const userToSend = await user.findOne({ username: req.params.username })
+    res.json({ userToSend })
 })
 
 
