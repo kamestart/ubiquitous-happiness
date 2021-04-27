@@ -50,7 +50,9 @@ app.use(
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
-        secure: process.env.isHttps
+        secure: process.env.isHttps,
+        expires: false,
+        sameSite: 'strict'
     })
 )
 app.use(passport.initialize())
@@ -98,12 +100,12 @@ app.get('/ids/create_id', async (req, res) => {
 
 
 
-app.get('/chat', (re, res) => {
-    res.render('chat', { production : app.locals.productiono })
+app.get('/chat', (req, res) => {
+    res.render('other_files/chat', { production : app.locals.productiono, user: req.user, serverName: req.query.room })
 })
 
 app.get('/about', (req, res) => {
-    res.render('about', { production : app.locals.productiono })
+    res.render('other_files/about', { production : app.locals.productiono })
 })
 
 

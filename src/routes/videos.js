@@ -29,6 +29,7 @@ conn.once('open', () => {
 // Create storage engine
 const storage = new GridFsStorage({
     url: process.env.DATABASE_CONNECTION_STRING,
+    options: { useUnifiedTopology: true },
     file: (req, file) => {
       return new Promise((resolve, reject) => {
         crypto.randomBytes(16, (err, buf) => {
@@ -50,12 +51,12 @@ const upload = multer({ storage });
 
 
 router.get('/create_video', (req, res) => {
-    res.render('newVideo', { production: productiono })
+    res.render('videos/newVideo', { production: productiono })
 })
 
 router.post('/create_video', upload.single('file'), async (req, res) => {
     try {
-        res.render('newVideoPt2', { video: req.file, fileName: req.file.filename, production: productiono})
+        res.render('videos/newVideoPt2', { video: req.file, fileName: req.file.filename, production: productiono})
     } catch (err) {
         throw err;
 
@@ -85,7 +86,7 @@ router.post('/create_video_pt_2', upload.single('file'), async (req, res) => {
     try {
 
       console.log(req.file.filename)
-      res.render('create_video_pt_3', { file: req.file, thumbnailFileName: req.file.filename, production: productiono })
+      res.render('videos/create_video_pt_3', { file: req.file, thumbnailFileName: req.file.filename, production: productiono })
     } catch(err) {
         throw err;
 
@@ -137,7 +138,7 @@ router.get('/watch_video/:filename',  async (req, res) => {
     let videoInfo =  await videoSchema.findOne({ fileName: req.params.filename })
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       if (file || file.length !== 0) {
-        res.render('view_video', { file: file, video: videoInfo, production: productiono })
+        res.render('videos/view_video', { file: file, video: videoInfo, production: productiono })
       } else {
         res.send("No Such Video Exists")
       }

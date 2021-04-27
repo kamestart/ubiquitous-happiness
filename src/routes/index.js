@@ -14,7 +14,9 @@ router.use(
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
-        secure: process.env.isHttps
+        secure: process.env.isHttps,
+        expires: false,
+        sameSite: 'strict'
     })
 )
 router.use(passport.initialize())
@@ -22,18 +24,20 @@ router.use(passport.session())
 
 router.get('/', async (req, res) => {
     if (req.query.searched == null) {
-        console.log(req.isAuthenticated())
+        console.log(req.isAuthenticated() +"null") 
         if (req.isAuthenticated()) {
             console.log(req.user)
         }
-        res.render('index', { production: productiono, user: req.user })
+        res.render('indexes/index', { production: productiono, user: req.user })
+        // timtile: DOE
+        // realUsername: Doe
     } else {
         var searchQuery = req.query.searched.toUpperCase()
         if (searchQuery != "" || " ") {
 
             searchResults = await videos.find({ title:{$regex: '.*' + searchQuery + '.*'}}, 'title description fileName originalName thumbnailFileName')
-            if (searchResults != []) {
-                res.render('video_searched.ejs', { results: searchResults, production: process.env.NODE_ENV, production: productiono })
+            if (searchResults != null) {
+                res.render('videos/video_searched.ejs', { results: searchResults, production: process.env.NODE_ENV, production: productiono })
             } else {
                 res.send('No File!')
             }

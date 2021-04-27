@@ -11,7 +11,7 @@ const session = require('express-session')
 const flash  = require('express-flash')
 const memoryStore = require('memorystore')(session)
 const cookieParser = require('cookie-parser')
-
+const request = require('request')
 
 // initialize Passport
 
@@ -30,7 +30,9 @@ router.use(
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
-        secure: process.env.isHttps
+        secure: process.env.isHttps,
+        expires: false,
+        sameSite: 'strict'
     })
 )
 router.use(passport.initialize())
@@ -41,32 +43,53 @@ router.use(passport.session())
 
 router.get('/register', async (req, res) => {
     console.log("Signup process initialized")
-    await res.render('signUp', { production: productiono })
+    await res.render('userSystems/signUp', { production: productiono })
 })
 
 // @route users/Signup
 // @desc signup logic
 
-router.post('/register', async (req, res) => {
+router.post('/register',  async (req, res) => {
+    console.log(req.body.captcha)
+    console.log("fef")
+    const hashedPassword = await bcrypt.hash(req.body.password, 15)
     try {
-        const password = req.body.password
-        const hashedPassword = await bcrypt.hash(password, 15)
+        if (req.body.captcha === undefined || req.body.captcha === "" ||req.body.captcha === null ) {
+            res.json({ "success": false, "msg": "Please select captcha" })
+        } 
+
+        // secret key
+        const recaptchaSecretKey = process.env.RecaptchaSecretKey
+        const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${recaptchaSecretKey}
+        &response=${req.body.captcha}&remoteip=${req.socket.remoteAddress}`
+
+        request(verifyUrl, (err, response, body) => {
+            body = JSON.parse(body)
+            if(body.success == undefined && !body.success) {
+                return res.json({ "success": false, "msg": "failed captcha verification" })
+            }   
+        })
+
         const newUser = new user({
             username: req.body.username,
             password: hashedPassword,
             id: Date.now().toString()
         })
+
         await newUser.save(function (err) {
             if (err) {
-               console.log(`error occured at newuser.save() :  /n /n`)
+            console.log(`error occured at newuser.save() :  /n /n`)
                 throw err;
             } else {
                 console.log("New User Sucessfully Created.")
             }
         })
+        console.log("redirect now")
         res.redirect('/userSystems/login')
+        
     } catch (err) {
-        res.status(500).send("We Have Expirienced a Internal Server Error! Please Wait! Our Team Will Be On This Issue Immediately!")
+        const msg = "Internal Server Error! Please Wait! Our Team Will Be On This Issue Now!"
+        res.status(500).send()
         console.log(chalk.red("Hey There! We've Got An Error: " + err))
         throw err;
     }
@@ -75,7 +98,7 @@ router.post('/register', async (req, res) => {
 
 
 router.get('/login', (req, res) => {
-    res.render("login", { production: productiono })
+    res.render("userSystems/login", { production: productiono })
 })
 
 router.post('/login', passport.authenticate('local', {
@@ -93,7 +116,7 @@ router.get('/oneUser/:username', async (req, res) => {
 
 router.delete('/logout', (req, res) => {
     req.logOut()
-    res.redirect('/login')
+    res.redirect('/')
 })
 
 function checkAuthenticated(req, res, next) {
