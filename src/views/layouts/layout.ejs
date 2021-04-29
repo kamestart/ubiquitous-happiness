@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calcon</title>
-
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
     integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
     crossorigin="anonymous"
@@ -15,15 +15,10 @@
     integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" 
     crossorigin="anonymous">
 
-    <% if(production == "production") { %> 
-    <link rel="stylesheet" type="text/css" href="https://anskep.herokuapp.com/css/main.css">
-    <link rel="stylesheet" type="text/css" href="https://anskep.herokuapp.com/css/chat.css">
-    <link rel="stylesheet" type="text/css" href="https://anskep.herokuapp.com/css/navbar.css">
-    <% } if(production != "production") { %>
-    <link rel="stylesheet" type="text/css" href="http://localhost:3000/css/main.css">
-    <link rel="stylesheet" type="text/css" href="http://localhost:3000/css/chat.css">
-    <link rel="stylesheet" type="text/css" href="http://localhost:3000/css/navbar.css">
-    <% } %> 
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/css/chat.css">
+    <link rel="stylesheet" type="text/css" href="/css/navbar.css">
+
 </head>
 <body>
 
@@ -35,6 +30,19 @@
     </div>
     <ul class="navbar-list">
         <li><a href="/">Home</a></li>
+        <li>
+            <!--Search Bar-->
+            <div class="search_div">
+                <div id="form_search_index">
+                    <form method="GET" action="/">
+                        <div id="searchBox">
+                            <input type="text" name="searched" id="searchInput" placeholder="Search" required oninvalid="this.setCustomValidity('Please Enter Something To Search!')">
+                            <button type="submit" id="search-btn"><img src="http://localhost:3000/images/search.png" class="searchIcon" alt=""></img></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </li>
         <li><a href="/userSystems/Register">Register</a></li>
         <li><a href="/userSystems/Login">Login</a></li>
         <li><a href="/videos">Videos</a></li>
@@ -49,19 +57,6 @@
 
 <br>
 <br>
- 
-<!--Search Bar-->
-
-<div class="search_div">
-    <div id="form_search_index">
-        <form method="GET" action="">
-            <div id="searchBox">
-                <input type="text" name="searched" id="searchInput" placeholder="Search" required oninvalid="this.setCustomValidity('Please Enter Something To Search!')">
-                <button type="submit" id="search-btn"><img src="http://localhost:3000/images/search.png" class="searchIcon" alt=""></img></button>
-            </div>
-        </form>
-    </div>
-</div>
     <%- body %> 
 </body>
 </html>
