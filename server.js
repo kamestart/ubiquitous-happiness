@@ -30,33 +30,33 @@ const videoRouter = require('./src/routes/videos')
 const userSystemsRouter = require('./src/routes/user')
 
 // set the settings and configure routers, views, etc.
-// app.disable('x-powered-by')
-// app.set('view engine', 'ejs')
-// app.set('views', __dirname + '/src/views')
-// app.set('layout', 'layouts/layout')
-// app.use(expressLayouts)
-// app.use(express.static(__dirname + '/src/public'))
-// app.use(express.urlencoded({ extended: false }))
-// app.use(express.json({ limit: "8gb", extended: false }))
-// app.use(methodOveride('_method'))
-// app.use(cookieParser())
+app.disable('x-powered-by')
+app.set('view engine', 'ejs')
+app.set('views', __dirname + '/src/views')
+app.set('layout', 'layouts/layout')
+app.use(expressLayouts)
+app.use(express.static(__dirname + '/src/public'))
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json({ limit: "8gb", extended: false }))
+app.use(methodOveride('_method'))
+app.use(cookieParser())
 // app.use('/videos', videoRouter)
 // app.use('/', indexRouter)
-// app.use('/userSystems', userSystemsRouter)
-// app.locals.productiono = process.env.NODE_ENV
-// app.use(
-//     session({
-//         store: new memoryStore(),
-//         secret: process.env.SESSION_SECRET,
-//         resave: false,
-//         saveUninitialized: false,
-//         secure: process.env.isHttps,
-//         expires: false,
-//         sameSite: 'strict'
-//     })
-// )
-// app.use(passport.initialize())
-// app.use(passport.session())
+app.use('/userSystems', userSystemsRouter)
+app.locals.productiono = process.env.NODE_ENV
+app.use(
+    session({
+        store: new memoryStore(),
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        secure: process.env.isHttps,
+        expires: false,
+        sameSite: 'strict'
+    })
+)
+app.use(passport.initialize())
+app.use(passport.session())
 
 
 
