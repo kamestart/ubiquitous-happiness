@@ -1,7 +1,7 @@
 const LocalStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
 
-function initialize(passport, getUserByUsername, findById) {
+const initialize = (passport, getUserByUsername, findById) => {
   const authenticateUser = async (Username, password, done) => {
     console.log(Username)
     console.log(password)
@@ -36,7 +36,7 @@ function initialize(passport, getUserByUsername, findById) {
       console.log(user)
       return done(null, user)
     } catch (err) {
-      console.log('Error at deserialize: /n /n /n ' + err)
+      console.log('Error at deserialize: \n \n \n ' + err)
     }
 
   });

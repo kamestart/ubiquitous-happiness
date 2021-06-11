@@ -1,5 +1,4 @@
 node_modules
 .env
 client
-test.py
-test.sh
+test-project

@@ -3,8 +3,6 @@ const chatMessages = document.querySelector('.chat-messages')
 const socket = io();
 
 
-
-
 socket.on('new_msg', (mesg) => {
     outuputMessage(mesg)
 
@@ -27,11 +25,10 @@ chatForm.addEventListener('submit', (e) => {
 outuputMessage = (message) => {
     const div = document.createElement('div');
     div.classList.add('message');
-    const timeNow = new Date(message.time).toLocaleTimeString()
     div.innerHTML = `	
-    <p class="meta">${message.username} <span>${timeNow}</span></p>
+    <p class="meta">${message} <span>${message}</span></p>
     <p class="text">
-       ${message.text}
+       ${message}
     </p>`;
     document.querySelector('.chat-messages').appendChild(div)
 }

@@ -1,4 +1,3 @@
-
 const bcrypt = require('bcrypt')
 const chalk = require('chalk')
 let productiono = process.env.NODE_ENV
@@ -13,8 +12,18 @@ const memoryStore = require('memorystore')(session)
 const cookieParser = require('cookie-parser')
 const request = require('request')
 var cors = require('cors')
+const jwt = require('jsonwebtoken')
+const Session = require('../models/session')
 
 // initialize Passport
+
+const corsOptions = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-type, Accept,  X-Custom-Header',
+    'Access-Control-Request-Methods': 'POST, GET, DELETE, UPDATE, PATCH, OPTIONS'
+}
+
+router.options('*', cors(corsOptions))
 
 initializePassport(
     passport,
@@ -41,6 +50,55 @@ router.use(passport.session())
 
 
 
+function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
+}
+
+
+
+const verifyJWT = async (req, res, next) => {
+    try {
+        const token = await req.headers['x-access-token']
+        const sid = req.body.sid
+        const session = await Session.findOne({ id: sid })
+
+        if (!token) {
+            return res.json({ msg: 'pls authenticate'})
+        }
+
+        jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
+            if(err) {
+                console.log(err)
+                return res.json({ msg: 'u failed to authenticate :(', auth: false })
+            }   
+                
+            if(session.uid !== decoded.id) {
+                req.userId = decoded.id;
+                next()
+            } else {
+                res.json({ msg: "Yo! Why Are You Trying To Send a fake / expired token / session id????" })
+            }
+
+        })
+    } catch(err) {
+        throw err;
+    }
+}
+ 
+router.post('/logout', cors(corsOptions), async (req, res) => {
+    await Session.findOne({ id: req.body.sid }).remove()
+    res.json({ msg: "Logout successful" })
+})    
+
+router.post('/currentUserInfo', cors(corsOptions), verifyJWT, async (req, res) => {
+    const usera = await user.findOne({ id: req.userId })
+    res.json({ user: usera })
+})
+
+
+
 
 router.get('/register', checkNotAuthenticated, async (req, res) => {
     console.log("Signup process initialized")
@@ -50,28 +108,31 @@ router.get('/register', checkNotAuthenticated, async (req, res) => {
 // @route users/Signup
 // @desc signup logic
 
-router.post('/register', async (req, res) => {
-    console.log(req.body.captcha)
-    const hashedPassword = await bcrypt.hash(req.body.password, 15)
+router.post('/register', cors(corsOptions), async (req, res) => {
+    console.log(req.body)
+    let body = JSON.parse(req.body.bodymine)
+    console.log(body)
     try {
-        if (req.body.captcha === undefined || req.body.captcha === "" ||req.body.captcha === null ) {
-            return res.json({ "RedirectUrl" : "/userSystems/register", "success": false, "msg": "Please select captcha" })
+        if (body.captcha === undefined || body.captcha === "" || body.captcha === null ) {
+            return res.json({ "RedirectUrl" : "/register", "success": false, "msg": "Please select captcha" })
         } 
 
         // secret key
         const recaptchaSecretKey = process.env.RecaptchaSecretKey
         const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${recaptchaSecretKey}
-        &response=${req.body.captcha}&remoteip=${req.socket.remoteAddress}`
+        &response=${body.captcha}&remoteip=${req.socket.remoteAddress}`
 
         request(verifyUrl, (err, response, body) => {
-            body = JSON.parse(body)
-            if(body.success == undefined && !body.success) {
+            let body4f = JSON.parse(body)
+            if(body4f.success == undefined || !body4f.success) {
                 return res.json({ "success": false, "msg": "failed captcha verification" })
             }   
         })
 
+        const hashedPassword = await bcrypt.hash(body.password, 15)
+
         const newUser = new user({
-            username: req.body.username,
+            username: body.username,
             password: hashedPassword,
             id: Date.now().toString()
         })
@@ -85,9 +146,7 @@ router.post('/register', async (req, res) => {
             }
         })
         console.log("redirect now")
-        res.header('Access-Control-Allow-Origin', '*'),
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-type, Accept')
-        res.json({ "RedirectUrl" : "/userSystems/login", "msg": "new user created successfully!"})
+        res.json({ "RedirectUrl" : "/login", "msg": "new user created successfully!"})
         
     } catch (err) {
         res.status(500).send("err. err. err. err. pls wait.")
@@ -96,17 +155,49 @@ router.post('/register', async (req, res) => {
     }
 })
 
+router.post('/login', cors(corsOptions), async (req, res) => {
+    try {
+        let body = await JSON.parse(req.body.payload)
+        console.log(body)
+        const userNow = await user.findOne({ username: body.name })
+        if (!userNow) {
+            return res.json({ msg: 'No user with that username!!!!!!', success: false  })
+        }
+
+        await bcrypt.compare(body.password, userNow.password, (err, same) => {
+            if (err) {
+                return res.json({ msg: "err. errr. errrr. please try later..." , error: err}) 
+            }
+
+            if (same){
+                var id = userNow.id
+                var sid = getRandomIntInclusive(100000000000000, 999999999999999)
+
+                const token = jwt.sign({id}, process.env.SESSION_SECRET, {
+                    expiresIn: 3600
+                })
+                
 
 
-router.get('/login', checkNotAuthenticated, (req, res) => {
-    res.render("userSystems/login", { production: productiono })
+                req.session.user = userNow
+                const newSession = new Session({
+                        id: sid,
+                        uid: id
+                })
+
+                newSession.save();
+                res.json({ success: true, auth: true, token: token, usera: userNow, message: 'logged in', sidd: sid })
+            } else {
+                res.json({ msg: 'incoorect password' })
+            }
+
+        })
+
+    } catch (err) {
+        res.status(500).send(err)
+        console.log(err)
+    }
 })
-
-router.post('/login', passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/userSystems/login',
-    failureFlash: true
-}))
 
 
 router.get('/oneUser/:username', async (req, res) => {
@@ -119,7 +210,7 @@ router.delete('/logout', (req, res) => {
     req.logOut()
     res.redirect('/')
 })
-
+ 
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
       return next()

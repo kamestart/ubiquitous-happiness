@@ -1,68 +1,78 @@
-// process.env.NODE_ENV != "production" ? require('dotenv').config() : console.log("In Prod Mode!")
+process.env.NODE_ENV != "production" ? require('dotenv').config() : console.log("In Prod Mode!")
 
-// const express = require('express')
-// const router = express.Router()
-// const path = require('path')
-// const crypto = require('crypto')
-// const multer = require('multer')
-// const GridFsStorage = require('multer-gridfs-storage')
-// const Grid = require('gridfs-stream')
-// const methodOveride = require('method-override')
-// const mongoose = require('mongoose')
-// const videoSchema = require('../models/video')
-// const id = require('../models/id')
-// let productiono = process.env.NODE_ENV
+const express = require('express')
+const router = express.Router()
+const path = require('path')
+const crypto = require('crypto')
+const multer = require('multer')
+const GridFsStorage = require('multer-gridfs-storage')
+const Grid = require('gridfs-stream')
+const mongoose = require('mongoose')
+const videoSchema = require('../models/video')
+const cors = require('cors')
+
+const corsOptions = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-type, Accept,  X-Custom-Header',
+    'Access-Control-Request-Methods': 'POST, GET, DELETE, UPDATE, PATCH, OPTIONS'
+}
+
+// Init gfs
+let gfs;
+
+const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
+
+conn.once('open', () => {
+  // Init stream
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+});
+
+// Create storage engine
+const storage = new GridFsStorage({
+    url: process.env.DATABASE_CONNECTION_STRING,
+    options: { useUnifiedTopology: true },
+    file: (req, file) => {
+      return new Promise((resolve, reject) => {
+        crypto.randomBytes(16, (err, buf) => {
+          if (err) {
+            return reject(err);
+          }
+          const filename = buf.toString('hex') + path.extname(file.originalname);
+          const fileInfo = {
+            filename: filename,
+            originalname: file.originalname,
+            bucketName: 'uploads'
+          };
+          resolve(fileInfo);
+        });
+      });
+    }
+  });
+const upload = multer({ storage });
 
 
 
-// // Init gfs
-// let gfs;
+router.options('*', cors(corsOptions))
 
-// const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
-
-// conn.once('open', () => {
-//   // Init stream
-//   gfs = Grid(conn.db, mongoose.mongo);
-//   gfs.collection('uploads');
-// });
-
-// // Create storage engine
-// const storage = new GridFsStorage({
-//     url: process.env.DATABASE_CONNECTION_STRING,
-//     options: { useUnifiedTopology: true },
-//     file: (req, file) => {
-//       return new Promise((resolve, reject) => {
-//         crypto.randomBytes(16, (err, buf) => {
-//           if (err) {
-//             return reject(err);
-//           }
-//           const filename = buf.toString('hex') + path.extname(file.originalname);
-//           const fileInfo = {
-//             filename: filename,
-//             originalname: file.originalname,
-//             bucketName: 'uploads'
-//           };
-//           resolve(fileInfo);
-//         });
-//       });
-//     }
-//   });
-// const upload = multer({ storage });
+router.post('/create_video', cors(corsOptions), upload.single('file'), async (req, res) => {
+    try {
+      console.log(req.body)
+      if (req.file === null || req.file === undefined){
+        return res.status(400).json({ msg: 'No File Uploaded' })
+      }
 
 
-// router.get('/create_video', (req, res) => {
-//     res.render('videos/newVideo', { production: productiono })
-// })
+      console.log('req.file ', req.file)
+        
+      res.json({ msg: 'abcdefgh', videoFileName: req.file.filename })
 
-// router.post('/create_video', upload.single('file'), async (req, res) => {
-//     try {
-//         res.render('videos/newVideoPt2', { video: req.file, fileName: req.file.filename, production: productiono})
-//     } catch (err) {
-//         throw err;
+    } catch (err) {
+        throw err;
 
-//     }
+    }
 
-// });
+});
 
 // // @route GET all files at /
 // // @desc Display All the files!
@@ -79,58 +89,65 @@
 // })
 
 
-// // @route /create_video_pt_2
-// // @desc create main thing
+// @route /create_video_pt_2
+// @desc create main thing
 
-// router.post('/create_video_pt_2', upload.single('file'), async (req, res) => {
-//     try {
+router.post('/create_video_pt_2', cors(corsOptions), upload.single('file'), async (req, res) => {
+  try {
+    console.log(req.body)
+    if (req.file === null || req.file === undefined){
+      return res.status(400).json({ msg: 'No File Uploaded' })
+    }
 
-//       console.log(req.file.filename)
-//       res.render('videos/create_video_pt_3', { file: req.file, thumbnailFileName: req.file.filename, production: productiono })
-//     } catch(err) {
-//         throw err;
 
-//     }
+    console.log('req.file ', req.file)
+      
+    res.json({ msg: 'abcdefgh', thumbnailFileName: req.file.filename })
 
-// })
+  } catch (err) {
+    res.status(500)
+      throw err;
 
-// router.post('/create_video_pt_3', async (req, res) => {
-//   try {
-//     const videoId = await id.findOne({ forWhat: "videos" })
-//     console.log(videoId)
-//     const currentID = videoId.current_id
-//     console.log(currentID);
-//     const newvideo = new videoSchema({
-//       title: req.body.title_create_vid.toUpperCase(),
-//       description: req.body.description_create_vid,
-//       fileName: req.cookies.VideofileName,
-//       originalName: req.body.title_create_vid,
-//       thumbnailFileName: req.cookies.ThumbnailFileName,
-//       id: currentID
-//   })
-//   await newvideo.save()
-//   let newId = currentID + 1
-//   console.log(newId)
-//   var filter = { forWhat: "videos" }
-//   var update = { current_id: currentID + 1 }
-//   id.findOneAndUpdate(filter, update, { new: true },(err, doc) => {
-//     if (err) {
-//       console.log("Something went wrong while updating: " + err)
-//     } else {
-//       console.log(doc)
-//     }
-//   })
-//   res.redirect('/')
-//   } catch (err) {
+  }
 
-//   }
-// })
-// // @route /video_creation_confirmation
-// //@desc give confirmation that video is created
+})
 
-// router.get('/video_creation_confirmation', (req, res) => {
+router.post('/create_video_pt_3', cors(corsOptions), async (req, res) => {
+  try {
 
-// })
+    var id = 1
+
+    const newvideo = new videoSchema({
+      title: req.body.title.toUpperCase(),
+      description: req.body.description,
+      fileName: req.body.videoFileName,
+      originalName: req.body.title,
+      thumbnailFileName: req.body.thumbnailFileName,
+      id: id
+  })
+  await newvideo.save()
+  let newId = id + 1
+
+  id = id + 1
+  console.log(id)
+
+  console.log(newId)
+ 
+  res.json({ success: true })
+  } catch (err) {
+    console.log(err)
+    res.json({ success: false })
+  }
+})
+
+
+router.post('/getVideoInfo', async (req, res) => {
+    try {
+      
+    } catch (err) {
+      
+    }
+})
 
 
 // router.get('/watch_video/:filename',  async (req, res) => {
@@ -147,56 +164,92 @@
 //   } catch(err) {
 //     throw err
 //   }
-// })
+// })     
 
-// // @route GET /image/:filename
-// // @desc Display Image
-// router.get('/get_one/:filename', (req, res) => {
-//   gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-//     // Check if file
-//     if (!file || file.length === 0) {
-//       return res.status(404).json({
-//         err: 'No file exists'
-//       });
-//     }
+// @route GET /get_one/:filename
+// @desc Display Video
+router.get('/get_one/:objId', async (req, res) => {
 
-//     // Check if image
-//     if (file.contentType === 'video/x-matroska' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
-//       // Read output to browser
-//       const readstream = gfs.createReadStream(file.filename);
-//       res.set('Content-Type', file.contentType)
-//       readstream.pipe(res);
-//     } else {
-//       res.status(404).json({
-//         err: 'Not an Video'
-//       });
-//     }
-//   });
-// });
+  const videoDoc = await videoSchema.findOne({ _id: req.params.objId })
+
+  if(videoDoc == null) {
+    return res.json({ msg: "no video with that id...." })
+  }
+
+  gfs.files.findOne({ filename: videoDoc.fileName }, (err, file) => {
+    // Check if file
+    if (!file || file.length === 0) {
+      return res.status(404).json({
+        err: 'No file exists'
+      });
+    }
+
+    // Check if image
+    if (file.contentType === 'video/x-matroska' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
+      // Read output to browser
+      const readstream = gfs.createReadStream(file.filename);
+      res.set('Content-Type', file.contentType)
+      readstream.pipe(res);
+    } else {
+      res.status(404).json({
+        err: 'Not an Video'
+      });
+    }
+  });
+});
+
+router.post('/getVideoSearchResults', cors(corsOptions), async (req, res) => {
+  var searchQuery = req.body.searched.toUpperCase()
+  const searchResults = await videoSchema.find(
+      { 
+        title: {
+          $regex: '.*' + searchQuery + '.*' 
+        }
+      },
+      'title description fileName originalName thumbnailFileName _id'
+    )
+
+  if (req.body.searched == null) {
+
+    res.status(204).json({ msg: "give me some search" })
+
+  } else {
+    
+    if (searchQuery != "" || " ") {
+        if (searchResults != null) {
+            res.status(200).json({ success: true, videos: searchResults })
+        } else {
+            res.status(404).json({ success: false, msg: 'No videos with the name of rfvg' })
+        }
+    } else {
+      res.status(204).json({ msg: "give me some search" })
+    }
+}
+})
 
 
-// router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
-//   gfs.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
-//     // Check if file
-//     if (!file || file.length === 0) {
-//       return res.status(404).json({
-//         err: 'No file exists'
-//       });
-//     }
+router.get('/get_one_thumbnail/:thumbnailFileName', (req, res) => {
+  gfs.files.findOne({ filename: req.params.thumbnailFileName }, (err, file) => {
+    // Check if file
+    if (!file || file.length === 0) {
+      return res.status(404).json({
+        err: 'No file exists'
+      });
+    }
 
-//     // Check if image
-//     if (file.contentType === 'image/jpg' || file.contentType === 'image/jpeg' || file.contentType === 'image/png' || file.contentType === "image/tiff") {
-//       // Read output to browser
-//       const readstream = gfs.createReadStream(file.filename);
-//       res.set('Content-Type', file.contentType)
-//       readstream.pipe(res);
-//     } else {
-//       res.status(404).json({
-//         err: 'Not an image'
-//       });
-//     }
-//   });
-// })
+    // Check if image
+    if (file.contentType === 'image/jpg' || file.contentType === 'image/jpeg' || file.contentType === 'image/png' || file.contentType === "image/tiff") {
+      // Read output to browser
+      const readstream = gfs.createReadStream(file.filename);
+      res.set('Content-Type', file.contentType)
+      readstream.pipe(res);
+    } else {
+      res.status(404).json({
+        err: 'Not an image'
+      });
+    }
+  });
+})
 
 
-// module.exports = router
+module.exports = router
