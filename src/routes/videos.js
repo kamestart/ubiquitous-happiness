@@ -27,7 +27,11 @@ const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, {
   useUnifiedTopology: true 
 })
 
-const client = redis.createClient()
+const client = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASS
+})
 client.on('connect', () => console.log('Redis client connected'))
 
 
