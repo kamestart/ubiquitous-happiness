@@ -20,11 +20,6 @@ const user = require('./src/models/user')
 
 // start socketio
 const http = require('http').Server(app)
-const io = require('socket.io')(http, {
-    cors: {
-       origin: '*'
-    }
-});
 
 // routers
 const indexRouter = require('./src/routes/index')

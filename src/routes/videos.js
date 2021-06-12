@@ -10,6 +10,8 @@ const Grid = require('gridfs-stream')
 const mongoose = require('mongoose')
 const videoSchema = require('../models/video')
 const cors = require('cors')
+const redis = require('redis')
+
 
 const corsOptions = {
     'Access-Control-Allow-Origin': '*',
@@ -17,10 +19,17 @@ const corsOptions = {
     'Access-Control-Request-Methods': 'POST, GET, DELETE, UPDATE, PATCH, OPTIONS'
 }
 
+
 // Init gfs
 let gfs;
+const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, {
+   useNewUrlParser: true,
+  useUnifiedTopology: true 
+})
 
-const conn = mongoose.createConnection(process.env.DATABASE_CONNECTION_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
+const client = redis.createClient()
+client.on('connect', () => console.log('Redis client connected'))
+
 
 conn.once('open', () => {
   // Init stream
@@ -73,20 +82,6 @@ router.post('/create_video', cors(corsOptions), upload.single('file'), async (re
     }
 
 });
-
-// // @route GET all files at /
-// // @desc Display All the files!
-
-// router.get('/', (req, res) => {
-//     gfs.files.find().toArray((err, files) => {
-//         // check if files are there
-//         if(!files || files.length === 0) {
-//             res.render('videos', { message: "No Videos Uploaded Yet!", production: productiono })
-//         }
-//         res.json(files)
-//     })
-
-// })
 
 
 // @route /create_video_pt_2
@@ -149,23 +144,6 @@ router.post('/getVideoInfo', async (req, res) => {
     }
 })
 
-
-// router.get('/watch_video/:filename',  async (req, res) => {
-//   try {
-//     let videoInfo =  await videoSchema.findOne({ fileName: req.params.filename })
-//     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-//       if (file || file.length !== 0) {
-//         res.render('videos/view_video', { file: file, video: videoInfo, production: productiono })
-//       } else {
-//         res.send("No Such Video Exists")
-//       }
-
-//     });
-//   } catch(err) {
-//     throw err
-//   }
-// })     
-
 // @route GET /get_one/:filename
 // @desc Display Video
 router.get('/get_one/:objId', async (req, res) => {
@@ -176,26 +154,38 @@ router.get('/get_one/:objId', async (req, res) => {
     return res.json({ msg: "no video with that id...." })
   }
 
-  gfs.files.findOne({ filename: videoDoc.fileName }, (err, file) => {
-    // Check if file
-    if (!file || file.length === 0) {
-      return res.status(404).json({
-        err: 'No file exists'
+  client.get(`video-${req.params.objId}`, (err, obj) => {
+    if (!obj) {
+      gfs.files.findOne({ filename: videoDoc.fileName }, (err, file) => {
+        // Check if file
+        if (!file || file.length === 0) {
+          return res.status(404).json({
+            err: 'No file exists'
+          });
+        }
+    
+        // Check if image
+        if (file.contentType === 'video/x-matroska' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
+          // Read output to browser
+          const readstream = gfs.createReadStream(file.filename);
+          client.set(`video-${req.params.objId}`, JSON.stringify(file))
+          
+        } else {
+          res.status(404).json({
+            err: 'Not an Video'
+          });
+        }
       });
-    }
-
-    // Check if image
-    if (file.contentType === 'video/x-matroska' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
-      // Read output to browser
-      const readstream = gfs.createReadStream(file.filename);
-      res.set('Content-Type', file.contentType)
-      readstream.pipe(res);
     } else {
-      res.status(404).json({
-        err: 'Not an Video'
-      });
+      const file = JSON.parse(obj)
+      console.log(file)
+      res.set('Content-Type', file.contentType)
+      const readstream = gfs.createReadStream(file.filename)
+      readstream.pipe(res);
     }
-  });
+  })
+
+  
 });
 
 router.post('/getVideoSearchResults', cors(corsOptions), async (req, res) => {
