@@ -41,9 +41,9 @@ const videoSchema = new schema({
     },
     creator: {
         type: String,
-        ref: 'user',
-        required: false
-    }
+        required: true 
+    },     
+
 })
 
 

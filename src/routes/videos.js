@@ -11,6 +11,51 @@ const mongoose = require('mongoose')
 const videoSchema = require('../models/video')
 const cors = require('cors')
 const redis = require('redis')
+const compresion = require('compression')
+const Session = require('../models/session')
+const jwt = require('jsonwebtoken')
+const user = require('../models/user')
+
+router.use(compresion({ filter: shouldCompress }))
+
+
+function shouldCompress (req, res) {
+  if (req.headers['x-no-compression']) {
+    // don't compress responses with this request header
+    return false
+  }
+
+  // fallback to standard filter function
+  return compresion.filter(req, res)
+}
+
+const verifyJWT = async (req, res, next) => {
+  try {
+      const token = await req.headers['x-access-token']
+      const sid = req.body.sid
+      const session = await Session.findOne({ id: sid })
+      if (!token) {
+          return res.json({ msg: 'pls authenticate'})
+      }
+
+      jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
+          if(err) {
+              console.log(err)
+              return res.json({ msg: 'u failed to authenticate :(', auth: false })
+          }   
+              
+          if(session.uid !== decoded.id) {
+              req.userId = decoded.id;
+              next()
+          } else {
+              res.json({ msg: "Yo! Why Are You Trying To Send a fake / expired token / session id????" })
+          }
+
+      })
+  } catch(err) {
+      throw err;
+  }
+}
 
 
 const corsOptions = {
@@ -111,9 +156,9 @@ router.post('/create_video_pt_2', cors(corsOptions), upload.single('file'), asyn
 
 })
 
-router.post('/create_video_pt_3', cors(corsOptions), async (req, res) => {
+router.post('/create_video_pt_3', cors(corsOptions), verifyJWT, async (req, res) => {
   try {
-
+    var usera = await user.findOne({ id: req.userId })
     var id = 1
 
     const newvideo = new videoSchema({
@@ -122,11 +167,13 @@ router.post('/create_video_pt_3', cors(corsOptions), async (req, res) => {
       fileName: req.body.videoFileName,
       originalName: req.body.title,
       thumbnailFileName: req.body.thumbnailFileName,
-      id: id
+      id: id,
+      creator: usera.id
   })
   await newvideo.save()
   let newId = id + 1
 
+  
   id = id + 1
   console.log(id)
 
@@ -140,9 +187,14 @@ router.post('/create_video_pt_3', cors(corsOptions), async (req, res) => {
 })
 
 
-router.post('/getVideoInfo', async (req, res) => {
+router.post('/getVideoInfo', cors(corsOptions), async (req, res) => {
     try {
-      
+      const video = await videoSchema.findOne({ _id: req.body.objId }, 'likes dislikes title description originalName creator')
+      const user3 = await user.findOne({ id: parseInt(video.creator)}, 'username reputation')
+
+      const body =  { video2: video, user2: user3 }
+      res.json(body)
+
     } catch (err) {
       
     }
@@ -150,7 +202,7 @@ router.post('/getVideoInfo', async (req, res) => {
 
 // @route GET /get_one/:filename
 // @desc Display Video
-router.get('/get_one/:objId', async (req, res) => {
+router.get('/get_one/:objId',cors(corsOptions), async (req, res) => {
 
   const videoDoc = await videoSchema.findOne({ _id: req.params.objId })
 
@@ -171,8 +223,12 @@ router.get('/get_one/:objId', async (req, res) => {
         // Check if image
         if (file.contentType === 'video/x-matroska' || file.contentType === 'video/mkv' || file.contentType === 'video/mp4' || file.contentType === "video/wmv" || file.contentType === "video/avi" || file.contentType === "video/flw") {
           // Read output to browser
+          res.set('Content-Type', file.contentType)
+          res.set('Content-Encoding', 'gzip')
+          res.set('Vary', 'Accept-Encoding')
           const readstream = gfs.createReadStream(file.filename);
           client.set(`video-${req.params.objId}`, JSON.stringify(file))
+          readstream.pipe(res)
           
         } else {
           res.status(404).json({

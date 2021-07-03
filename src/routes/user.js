@@ -98,13 +98,6 @@ router.post('/currentUserInfo', cors(corsOptions), verifyJWT, async (req, res) =
 })
 
 
-
-
-router.get('/register', checkNotAuthenticated, async (req, res) => {
-    console.log("Signup process initialized")
-    await res.render('userSystems/signUp', { production: productiono })
-})
-
 // @route users/Signup
 // @desc signup logic
 
@@ -204,27 +197,8 @@ router.get('/oneUser/:username', async (req, res) => {
     const userToSend = await user.findOne({ username: req.params.username })
     res.json({ userToSend })
 })
-
-
-router.delete('/logout', (req, res) => {
-    req.logOut()
-    res.redirect('/')
-})
  
-function checkAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-      return next()
-    }
   
-    res.redirect('/login')
-  }
-  
-  function checkNotAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-      return res.redirect('/')
-    }
-    next()
-  }
 
 module.exports = router
 

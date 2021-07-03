@@ -40,6 +40,7 @@ then
 				;;
 			"Fetch The Database Stuff")
 				echo "You chose To  $opt!"
+				
 				;;
 			"Run Security Checks")
 				echo "You chose To $opt!"
