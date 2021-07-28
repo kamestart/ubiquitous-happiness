@@ -43,7 +43,10 @@ const videoSchema = new schema({
         type: String,
         required: true 
     },     
-
+    ChallengeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Challenge'
+    },
 })
 
 
