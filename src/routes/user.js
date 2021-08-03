@@ -5,9 +5,9 @@ const router = require('express').Router()
 const initializePassport = require('../startegies/passport-strategy')
 const mongoose = require('mongoose')
 const user = require('../models/user')
-const passport  = require('passport')
+const passport = require('passport')
 const session = require('express-session')
-const flash  = require('express-flash')
+const flash = require('express-flash')
 const memoryStore = require('memorystore')(session)
 const cookieParser = require('cookie-parser')
 const request = require('request')
@@ -65,16 +65,16 @@ const verifyJWT = async (req, res, next) => {
         const session = await Session.findOne({ id: sid })
 
         if (!token) {
-            return res.json({ msg: 'pls authenticate'})
+            return res.json({ msg: 'pls authenticate' })
         }
 
         jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
-            if(err) {
+            if (err) {
                 console.log(err)
                 return res.json({ msg: 'u failed to authenticate :(', auth: false })
-            }   
-                
-            if(session.uid !== decoded.id) {
+            }
+
+            if (session.uid !== decoded.id) {
                 req.userId = decoded.id;
                 next()
             } else {
@@ -82,15 +82,15 @@ const verifyJWT = async (req, res, next) => {
             }
 
         })
-    } catch(err) {
+    } catch (err) {
         throw err;
     }
 }
- 
+
 router.post('/logout', cors(corsOptions), async (req, res) => {
     await Session.findOne({ id: req.body.sid }).remove()
     res.json({ msg: "Logout successful" })
-})    
+})
 
 router.post('/currentUserInfo', cors(corsOptions), verifyJWT, async (req, res) => {
     const usera = await user.findOne({ id: req.userId })
@@ -106,9 +106,9 @@ router.post('/register', cors(corsOptions), async (req, res) => {
     let body = JSON.parse(req.body.bodymine)
     console.log(body)
     try {
-        if (body.captcha === undefined || body.captcha === "" || body.captcha === null ) {
-            return res.json({ "RedirectUrl" : "/register", "success": false, "msg": "Please select captcha" })
-        } 
+        if (body.captcha === undefined || body.captcha === "" || body.captcha === null) {
+            return res.json({ "RedirectUrl": "/register", "success": false, "msg": "Please select captcha" })
+        }
 
         // secret key
         const recaptchaSecretKey = process.env.RecaptchaSecretKey
@@ -117,9 +117,9 @@ router.post('/register', cors(corsOptions), async (req, res) => {
 
         request(verifyUrl, (err, response, body) => {
             let body4f = JSON.parse(body)
-            if(body4f.success == undefined || !body4f.success) {
+            if (body4f.success == undefined || !body4f.success) {
                 return res.json({ "success": false, "msg": "failed captcha verification" })
-            }   
+            }
         })
 
         const hashedPassword = await bcrypt.hash(body.password, 15)
@@ -132,15 +132,15 @@ router.post('/register', cors(corsOptions), async (req, res) => {
 
         await newUser.save(function (err) {
             if (err) {
-            console.log(`error occured at newuser.save() :  /n /n`)
+                console.log(`error occured at newuser.save() :  /n /n`)
                 throw err;
             } else {
                 console.log("New User Sucessfully Created.")
             }
         })
         console.log("redirect now")
-        res.json({ "RedirectUrl" : "/login", "msg": "new user created successfully!"})
-        
+        res.json({ "RedirectUrl": "/login", "msg": "new user created successfully!" })
+
     } catch (err) {
         res.status(500).send("err. err. err. err. pls wait.")
         console.log(chalk.red("Error: There is a " + err))
@@ -154,34 +154,34 @@ router.post('/login', cors(corsOptions), async (req, res) => {
         console.log(body)
         const userNow = await user.findOne({ username: body.name })
         if (!userNow) {
-            return res.json({ msg: 'No user with that username!!!!!!', success: false  })
+            return res.json({ msg: 'No user with that username!!!!!!', err: 'wrong_name', auth: false })
         }
 
         await bcrypt.compare(body.password, userNow.password, (err, same) => {
             if (err) {
-                return res.json({ msg: "err. errr. errrr. please try later..." , error: err}) 
+                return res.json({ msg: "err. errr. errrr. please try later...", error: err, auth: false })
             }
 
-            if (same){
+            if (same) {
                 var id = userNow.id
                 var sid = getRandomIntInclusive(100000000000000, 999999999999999)
 
-                const token = jwt.sign({id}, process.env.SESSION_SECRET, {
+                const token = jwt.sign({ id }, process.env.SESSION_SECRET, {
                     expiresIn: 3600
                 })
-                
+
 
 
                 req.session.user = userNow
                 const newSession = new Session({
-                        id: sid,
-                        uid: id
+                    id: sid,
+                    uid: id
                 })
 
                 newSession.save();
                 res.json({ success: true, auth: true, token: token, usera: userNow, message: 'logged in', sidd: sid })
             } else {
-                res.json({ msg: 'incoorect password' })
+                res.json({ msg: 'incoorect password', auth: false, err: 'wrong_name' })
             }
 
         })
@@ -197,8 +197,8 @@ router.get('/oneUser/:username', async (req, res) => {
     const userToSend = await user.findOne({ username: req.params.username })
     res.json({ userToSend })
 })
- 
-  
+
+
 
 module.exports = router
 
