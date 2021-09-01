@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const chalk = require('chalk')
-let productiono = process.env.NODE_ENV
+const productiono = process.env.NODE_ENV
 const router = require('express').Router()
 const initializePassport = require('../startegies/passport-strategy')
 const mongoose = require('mongoose')

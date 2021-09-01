@@ -7,7 +7,7 @@ const expressLayouts = require('express-ejs-layouts')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const methodOveride = require('method-override')
-const cookieParser = require('cookie-parser')   
+const cookieParser = require('cookie-parser')
 const passport = require('passport')
 const session = require('express-session')
 const memoryStore = require('memorystore')(session)
@@ -25,6 +25,8 @@ const http = require('http').Server(app)
 const indexRouter = require('./src/routes/index')
 const videoRouter = require('./src/routes/videos')
 const userSystemsRouter = require('./src/routes/user')
+const CourseROuter = require('./src/routes/Course')
+
 
 // set the settings and configure routers, views, etc.
 app.disable('x-powered-by')
@@ -41,6 +43,8 @@ app.use(cookieParser())
 app.use('/videos', videoRouter)
 app.use('/', indexRouter)
 app.use('/userSystems', userSystemsRouter)
+app.use('/course', CourseROuter)
+
 
 // connect to mongoose
 
